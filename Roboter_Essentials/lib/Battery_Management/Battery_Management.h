@@ -40,7 +40,7 @@ public:
     void action_minOperatingVoltage();
     void action_maxVoltage();
     void display_Voltage();
-    void battery_check();
+    void battery_check();           //to do: implement as a timer interupt
 };
 
 #endif
