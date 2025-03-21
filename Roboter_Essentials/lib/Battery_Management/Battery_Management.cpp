@@ -4,9 +4,11 @@
     unsigned long BatteryManagement::sumAnalogWerte = 0;
     char BatteryManagement::anzAnalogWerte = 0;
     double BatteryManagement::uBattery = 0;
+    int BatteryManagement::samplingPeriode = 0; // ms
+    double BatteryManagement::analog_convert_factor = 0; 
 
 
-BatteryManagement::BatteryManagement(int sampling_Periode):Motor(),OnBoardLeds(){
+BatteryManagement::BatteryManagement(int sampling_Periode):Motor(),OnBoardLeds() {
     samplingPeriode = sampling_Periode;
     pinMode(ADC_BATTERY_PIN, INPUT);
 
@@ -107,4 +109,8 @@ void BatteryManagement::battery_check(){
     }
   }
 }
+
+
+
+BatteryManagement batterymanager(5);
 

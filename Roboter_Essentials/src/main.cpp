@@ -1,18 +1,19 @@
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#include "Battery_Management.h"
+#include "impulsgeber.h"
+
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+Serial.begin(115200);
+Serial.println("start");
+impulsgeber.begin();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+
+impulsgeber.printStatus();
+batterymanager.battery_check();
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
-}
+

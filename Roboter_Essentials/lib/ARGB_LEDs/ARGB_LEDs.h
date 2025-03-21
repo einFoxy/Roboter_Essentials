@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <FastLED.h>
-#include "../Battery_Management/Battery_Management.h"
 
 #define NUMBER_OF_LEDS 4
 
@@ -12,12 +11,9 @@
 
 class OnBoardLeds{
 protected:
-    static CRGB leds[NUMBER_OF_LEDS];
+    CRGB leds[NUMBER_OF_LEDS];
 
-private:
-    static bool isSetUp;
-    static bool ledsInUse;
-    friend class BatteryManagement;
+    bool ledsInUse;
 
 public:
     OnBoardLeds();
@@ -25,4 +21,4 @@ public:
     void setLeds(uint8_t r, uint8_t g, uint8_t b);          //sets the RGB value of every LED
 };
 
-#endif ON_BOARD_LEDS
+#endif //ON_BOARD_LEDS

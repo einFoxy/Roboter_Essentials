@@ -1,5 +1,4 @@
-#ifndef BATTERY_CHECK
-#define BATTERY_CHECK
+#pragma once
 
 #include <Arduino.h>
 #include "../Motor/motor.h"
@@ -22,11 +21,8 @@
 //sleeptime for shutdown
 #define SLEEP_TIME 4000000 //us
 
-
-class BatteryManagement:private Motor, private OnBoardLeds
+class BatteryManagement : private Motor, private OnBoardLeds
 {
-private:
-    bool isSetUp;
 protected:
     static unsigned long sumAnalogWerte;
     static char anzAnalogWerte;
@@ -36,11 +32,14 @@ protected:
 
 public:
     BatteryManagement(int samplingPeriode = 5);
+    void battery_check();           //to do: implement as a timer interuptp
+
+protected:
     void action_minVoltage();
     void action_minOperatingVoltage();
     void action_maxVoltage();
     void display_Voltage();
-    void battery_check();           //to do: implement as a timer interupt
 };
 
-#endif
+extern BatteryManagement batterymanager;
+

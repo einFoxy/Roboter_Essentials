@@ -1,11 +1,8 @@
 #include "ARGB_LEDs.h"
 
-    bool OnBoardLeds::ledsInUse = 0;
     
 OnBoardLeds::OnBoardLeds(){
-    if(!isSetUp){
         FastLED.addLeds<SK9822, DATA_PIN, CLOCK_PIN, RBG>(leds, NUMBER_OF_LEDS); // setup LEDS
-    }
 }
 
 

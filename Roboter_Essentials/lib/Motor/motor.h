@@ -17,6 +17,9 @@
 #define MOTOR_LEFT_CHANAL 0
 
 class Motor{
+public:
+    int wheelBase = 0; // should be chaned
+    int wheelRadius = 0;
 protected: //vars
     static int
         speedRight_Pin,
@@ -24,6 +27,10 @@ protected: //vars
 
         directionRight_Pin,
         directionLeft_Pin;
+
+    int v_max;
+
+        
 private:
     static bool isSetUp;
 
@@ -45,5 +52,15 @@ public:
 
 };
 
+class Speed{
+protected:
+    float v_liniar;
+    float v_rotation;
 
-#endif MOTOR
+    Speed(): v_liniar(0),v_rotation(0){}
+    Speed(float liniar, float rotation): v_liniar(liniar), v_rotation(rotation){}
+
+};
+
+
+#endif

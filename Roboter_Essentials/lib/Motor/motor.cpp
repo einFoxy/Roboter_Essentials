@@ -6,7 +6,7 @@
         int Motor::directionRight_Pin = 15;
         int Motor::directionLeft_Pin = 33;
 
-Motor::Motor(){
+Motor::Motor():v_max(std::pow(2,10)){
     if(!isSetUp){
     isSetUp = 1;
      pinMode(directionRight_Pin, OUTPUT);
@@ -29,7 +29,7 @@ Motor::Motor(){
 
 
 Motor::Motor(int motor_speedRight_Pin, int motor_speedLeft_Pin,
-             int motordirectionRight_Pin, int motordirectionLeft_Pin)
+             int motordirectionRight_Pin, int motordirectionLeft_Pin):v_max(std::pow(2,10))
 {
     if(!isSetUp){
     isSetUp = 1;
@@ -56,7 +56,7 @@ Motor::Motor(int motor_speedRight_Pin, int motor_speedLeft_Pin,
     }
 }
 
-Motor::Motor(uint32_t frequency, uint8_t resulutionBits){
+Motor::Motor(uint32_t frequency, uint8_t resulutionBits):v_max(std::pow(2,resulutionBits)){
     if(!isSetUp){
     isSetUp = 1;
      pinMode(directionRight_Pin, OUTPUT);
@@ -79,7 +79,7 @@ Motor::Motor(uint32_t frequency, uint8_t resulutionBits){
 
 Motor::Motor(int motor_speedRight_Pin, int motor_speedLeft_Pin,
              int motordirectionRight_Pin, int motordirectionLeft_Pin,
-             uint32_t frequency, uint8_t resulutionBits)
+             uint32_t frequency, uint8_t resulutionBits):v_max(std::pow(2,resulutionBits))
 {
     if(!isSetUp){
     isSetUp = 1;
@@ -107,7 +107,8 @@ Motor::Motor(int motor_speedRight_Pin, int motor_speedLeft_Pin,
 }
 
 
-void Motor::changeDirection(int direction, int motor){
+void Motor::changeDirection(int direction, int motor)
+{
    if(motor == MOTOR_RIGHT)
         digitalWrite(directionRight_Pin, direction);
     else //motor == MOTOR_LEFT
