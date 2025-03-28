@@ -15,15 +15,15 @@ protected:
        right = 27
     };
 
-    static volatile int ticksRight;
-    static volatile int ticksLeft;
+    static volatile unsigned long ticksRight;
+    static volatile unsigned long ticksLeft;
 
 
 public:
     void begin(); 
     void printStatus();
-    int getRightTicks();
-    int getLeftTicks();
+    unsigned long getRightTicks();
+    unsigned long getLeftTicks();
 
 protected:
     friend void IRAM_ATTR isrRightWheel();

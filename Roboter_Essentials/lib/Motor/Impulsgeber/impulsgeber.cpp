@@ -2,8 +2,8 @@
 #include <Arduino.h>
 
 Impulsgeber impulsgeber;
-volatile int Impulsgeber::ticksRight = 0;
-volatile int Impulsgeber::ticksLeft = 0;
+volatile unsigned long Impulsgeber::ticksRight = 0;
+volatile unsigned long Impulsgeber::ticksLeft = 0;
 
 void Impulsgeber::begin(){
 
@@ -30,10 +30,10 @@ void Impulsgeber::printStatus(){
 
 }
 
-int Impulsgeber::getRightTicks(){
+unsigned long Impulsgeber::getRightTicks(){
     return ticksRight;
 }
-int Impulsgeber::getLeftTicks(){
+unsigned long Impulsgeber::getLeftTicks(){
     return ticksLeft;
 }
 

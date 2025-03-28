@@ -122,3 +122,105 @@ void Motor::changeSpeed(int speed, int motor){
     else //motor == MOTOR_LEFT
         ledcWrite(MOTOR_LEFT_CHANAL, speed); 
 }
+
+
+void Motor::setLiniarPID(float Kp,float Ki,float Kd){
+    liniar_PID.setParameters(Kp,Ki, Kd);
+}
+void Motor::setAngularPID(float Kp,float Ki,float Kd){
+    
+    angular_PID.setParameters(Kp,Ki, Kd);
+}
+
+//void Motor::headingPID(float Kp,float Ki,float Kd){
+//    heading_PID.setParameters(Kp,Ki,Kd);
+//}
+
+
+void Motor::setSpeed(const Speed& speed){
+//meachure time
+static unsigned long  tlast = 0;
+const auto tnow = micros();
+
+const unsigned long dt_seconds = tlast - tnow;
+
+//meashure distance / rotation change
+const auto rightTicks = getRightTicks();
+const auto leftTicks = getLeftTicks();
+
+const auto v_meashured = calculateVelocity(rightTicks, leftTicks, dt_seconds);
+const auto omega_meashured = calculateAngle(rightTicks, leftTicks, dt_seconds);
+calculateDistanceDriven(rightTicks, leftTicks, dt_seconds);
+calculateAngleDriven(rightTicks, leftTicks, dt_seconds);
+
+//calculate error
+//const auto liniar_error = speed.getLinearSpeed() * v_max - v_meashured;
+
+
+tlast = micros();
+    
+
+}
+
+
+float Motor::calculateVelocity(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds){
+//calculate rotation
+const float rightRotations = rightTicks/ticksPerRevolution;
+const float leftRotations = leftTicks/ticksPerRevolution;
+
+//calculate distance
+const float rightDistance = 2 * M_PI * wheelRadius * rightRotations;
+const float leftDistance = 2 * M_PI * wheelRadius * leftRotations;
+
+//calculate velocity
+const float rightVelocity = rightDistance/dt_seconds;
+const float leftVelocity = leftDistance/dt_seconds;
+
+return (rightVelocity + leftVelocity)/2.0;
+}
+
+float Motor::calculateAngle(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds){
+//calculate rotation
+const float rightRotations = rightTicks/ticksPerRevolution;
+const float leftRotations = leftTicks/ticksPerRevolution;
+
+//calculate distance
+const float rightDistance = 2 * M_PI * wheelRadius * rightRotations;
+const float leftDistance = 2 * M_PI * wheelRadius * leftRotations;
+
+//calculate velocity
+const float rightVelocity = rightDistance/dt_seconds;
+const float leftVelocity = leftDistance/dt_seconds;
+
+return (rightVelocity - leftVelocity)/wheelBase;
+}
+
+
+void Motor::calculateAngleDriven(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds)
+{
+//calculate rotation
+const float rightRotations = rightTicks/ticksPerRevolution;
+const float leftRotations = leftTicks/ticksPerRevolution;
+
+//calculate distance
+const float rightDistance = 2 * M_PI * wheelRadius * rightRotations;
+const float leftDistance = 2 * M_PI * wheelRadius * leftRotations;
+
+distaceDriven += (rightDistance + leftDistance)/2.0f;
+
+}
+
+
+
+void Motor::reset(){
+liniar_PID.reset();
+angular_PID.reset();
+
+
+distaceDriven = 0;
+angularDriven = 0;
+
+    
+
+
+}

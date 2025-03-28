@@ -2,6 +2,8 @@
 #define MOTOR
 
 #include <Arduino.h>
+#include "Impulsgeber/impulsgeber.h"
+#include "datatypes.h"
 
 #define MOTOR_RIGHT 1
 #define MOTOR_LEFT  0
@@ -16,10 +18,17 @@
 #define MOTOR_RIGHT_CHANAL 1
 #define MOTOR_LEFT_CHANAL 0
 
-class Motor{
+#define PWM_BIT_RESULTUION
+
+
+
+class Motor: Impulsgeber{
 public:
-    int wheelBase = 0; // should be chaned
-    int wheelRadius = 0;
+    int wheelBase = 0.156; //m - distance between the wheels 
+    int wheelRadius = 0.0325; //m
+
+    int ticksPerRevolution = 20;
+
 protected: //vars
     static int
         speedRight_Pin,
@@ -30,6 +39,15 @@ protected: //vars
 
     int v_max;
 
+
+    PIDController liniar_PID;
+    PIDController angular_PID;
+    //PIDController heading_PID;
+
+    float distaceDriven = 0;
+    float angularDriven = 0;
+
+    
         
 private:
     static bool isSetUp;
@@ -46,21 +64,28 @@ public:
           int direction_Right_Pin, int direction_Left_Pin,
           uint32_t frequency, uint8_t resulutionBits);
 
+    float calculateVelocity(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds);
+    float calculateAngle(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds);
+    void calculateDistanceDriven(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds);
+    void calculateAngleDriven(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds);
+
+    inline float getDistance(){return distaceDriven;}
+    inline float getAngle(){return angularDriven;}
+
+    void setLiniarPID(float Kp,float Ki,float Kd);
+    void setAngularPID(float Kp,float Ki,float Kd);
+    //void headingPID(float Kp,float Ki,float Kd);
 
     void changeDirection(int direction, int motor);
     void changeSpeed(int speed, int motor);
 
-};
+    void setSpeed(const Speed& speed);
 
-class Speed{
-protected:
-    float v_liniar;
-    float v_rotation;
+    void reset();
 
-    Speed(): v_liniar(0),v_rotation(0){}
-    Speed(float liniar, float rotation): v_liniar(liniar), v_rotation(rotation){}
 
 };
+
 
 
 #endif
