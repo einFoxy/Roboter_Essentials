@@ -3,15 +3,14 @@
 
 class Speed{
 protected:
-    float v_liniar;
-    float v_rotation;
+    float speed;
+    float omega;
 
 public:
-    Speed(): v_liniar(0),v_rotation(0){}
-    Speed(float liniar, float rotation): v_liniar(liniar), v_rotation(rotation){}
+    Speed(float liniar, float rotation): speed(liniar), omega(rotation){}
 
-    inline float getLinearSpeed(){return v_liniar;}
-    inline float getRotationalSpeed(){return v_rotation;}
+    inline float getLinearSpeed()const {return speed;}
+    inline float getOmega()const {return omega;}
 
 };
 
@@ -34,3 +33,5 @@ class PIDController
         double previous_error;
         unsigned long last_time;
     };
+
+    int clampInt(const int value, const int min, const int max);

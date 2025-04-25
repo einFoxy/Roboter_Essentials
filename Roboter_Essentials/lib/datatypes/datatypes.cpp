@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "datatypes.h"
-
-    
+#include <bits/stl_algo.h> // std::search
+   
 
         PIDController::PIDController() : Kp(1.0), Ki(0.0), Kd(0.0), integral(0.0), previous_error(0.0),
                           last_time(micros())
@@ -39,4 +39,9 @@
             previous_error = error;
 
             return static_cast<float>(error * Kp + Ki * integral + Kd * derivative);
+        }
+
+        int clampInt(const int value, const int min, const int max)
+        {
+            return std::min(std::max(value, min), max);
         }

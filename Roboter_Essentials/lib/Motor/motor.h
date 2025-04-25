@@ -18,16 +18,21 @@
 #define MOTOR_RIGHT_CHANAL 1
 #define MOTOR_LEFT_CHANAL 0
 
-#define PWM_BIT_RESULTUION
+#define PWM_BIT_RESULTUION 10
+#define MAX_SPEED_CMD 1024
 
 
 
-class Motor: Impulsgeber{
+class Motor: public Impulsgeber{
 public:
-    int wheelBase = 0.156; //m - distance between the wheels 
-    int wheelRadius = 0.0325; //m
+    float wheelBase = 0.156; //m - distance between the wheels 
+    float wheelRadius = 0.0325; //m
 
-    int ticksPerRevolution = 20;
+    float ticksPerRevolution = 20;
+    unsigned long maxTicksPerRevolution = 7;
+    float maxLiniarSpeed;
+    float maxOmegaSpeed;
+
 
 protected: //vars
     static int
@@ -37,12 +42,12 @@ protected: //vars
         directionRight_Pin,
         directionLeft_Pin;
 
-    int v_max;
 
 
     PIDController liniar_PID;
     PIDController angular_PID;
     //PIDController heading_PID;
+
 
     float distaceDriven = 0;
     float angularDriven = 0;
@@ -64,10 +69,13 @@ public:
           int direction_Right_Pin, int direction_Left_Pin,
           uint32_t frequency, uint8_t resulutionBits);
 
-    float calculateVelocity(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds);
-    float calculateAngle(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds);
-    void calculateDistanceDriven(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds);
-    void calculateAngleDriven(unsigned long rightTicks, unsigned long leftTicks, unsigned long dt_seconds);
+    float calculateVelocity(const unsigned long rightTicks, const unsigned long leftTicks, const float dt_seconds);
+    float calculateAngle(const unsigned long rightTicks, const unsigned long leftTicks, const float dt_seconds);
+    void calculateDistanceDriven(const unsigned long rightTicks, const unsigned long leftTicks, const float dt_seconds);
+    void calculateAngleDriven(const unsigned long rightTicks, const unsigned long leftTicks, const float dt_seconds);
+
+    float calculateMaxVelocity();
+    float calculateMaxOmega();
 
     inline float getDistance(){return distaceDriven;}
     inline float getAngle(){return angularDriven;}
@@ -80,6 +88,7 @@ public:
     void changeSpeed(int speed, int motor);
 
     void setSpeed(const Speed& speed);
+    void setMotorSpeeds(const float final_v_cmd, const float final_omega_cmd);
 
     void reset();
 
