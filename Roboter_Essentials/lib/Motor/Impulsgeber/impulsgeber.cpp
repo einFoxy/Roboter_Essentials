@@ -1,9 +1,10 @@
 #include "impulsgeber.h"
 #include <Arduino.h>
+#include <log.h>
 
 Impulsgeber impulsgeber;
-volatile unsigned long Impulsgeber::ticksRight = 0;
-volatile unsigned long Impulsgeber::ticksLeft = 0;
+volatile uint32_t Impulsgeber::ticksRight = 0;
+volatile uint32_t Impulsgeber::ticksLeft = 0;
 
 void Impulsgeber::begin(){
 
@@ -16,24 +17,24 @@ void Impulsgeber::begin(){
 }
 
 void Impulsgeber::printStatus(){
-    Serial.print("Right Impulsgeber: ");
-    Serial.print(digitalRead(impulsgeber_pin::right));
-    Serial.print(" - Left Impulsgeber: ");
-    Serial.print(digitalRead(impulsgeber_pin::left));
+    LOG("Right Impulsgeber: ");
+    LOG(digitalRead(impulsgeber_pin::right));
+    LOG(" - Left Impulsgeber: ");
+    LOG(digitalRead(impulsgeber_pin::left));
 
-    Serial.print("     Right Ticks: ");
-    Serial.print(ticksRight);
-    Serial.print(" - LeftTicks: ");
-    Serial.println(ticksLeft);
+    LOG("     Right Ticks: ");
+    LOG(ticksRight);
+    LOG(" - LeftTicks: ");
+    LOG_LN(ticksLeft);
 
     
 
 }
 
-unsigned long Impulsgeber::getRightTicks(){
+uint32_t Impulsgeber::getRightTicks(){
     return ticksRight;
 }
-unsigned long Impulsgeber::getLeftTicks(){
+uint32_t Impulsgeber::getLeftTicks(){
     return ticksLeft;
 }
 

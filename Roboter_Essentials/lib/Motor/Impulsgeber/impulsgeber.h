@@ -10,20 +10,21 @@ void IRAM_ATTR isrLeftWheel();
 class Impulsgeber{
 
 protected:
-    enum impulsgeber_pin: int{
+    enum impulsgeber_pin: const int{
        left = 14,
        right = 27
     };
 
-    static volatile unsigned long ticksRight;
-    static volatile unsigned long ticksLeft;
+    static volatile uint32_t ticksRight;
+    static volatile uint32_t ticksLeft;
 
 
 public:
     void begin(); 
-    void printStatus();
-    unsigned long getRightTicks();
-    unsigned long getLeftTicks();
+    static void printStatus();
+
+    uint32_t getRightTicks();
+    uint32_t getLeftTicks();
 
 protected:
     friend void IRAM_ATTR isrRightWheel();

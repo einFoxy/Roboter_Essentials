@@ -1,4 +1,5 @@
 #include "motor.h"
+#include "log.h"
 
         bool Motor::isSetUp = 0;
         int Motor::speedRight_Pin = 2;
@@ -8,115 +9,133 @@
 
 Motor::Motor(){
     if(!isSetUp){
-    isSetUp = 1;
-     pinMode(directionRight_Pin, OUTPUT);
-     pinMode(directionLeft_Pin, OUTPUT);
+        isSetUp = 1;
+        pinMode(directionRight_Pin, OUTPUT);
+        pinMode(directionLeft_Pin, OUTPUT);
 
-     //Richtung der Motoren Bestimmen
-     digitalWrite(directionRight_Pin, MOTOR_RIGHT_CHANAL);
-     digitalWrite(directionLeft_Pin, MOTOR_LEFT_CHANAL);
+        //Richtung der Motoren Bestimmen
+        digitalWrite(directionRight_Pin, MOTOR_RIGHT_CHANAL);
+        digitalWrite(directionLeft_Pin, MOTOR_LEFT_CHANAL);
 
-    //Setup von PWM Chanals 
-     ledcSetup(MOTOR_RIGHT_CHANAL, 16000,10);
-     ledcSetup(MOTOR_LEFT_CHANAL, 16000,10);
-     ledcAttachPin(speedRight_Pin, MOTOR_RIGHT_CHANAL);
-     ledcAttachPin(speedLeft_Pin,MOTOR_LEFT_CHANAL);
-        //PWM Chanals == 0
-     ledcWrite(MOTOR_RIGHT_CHANAL, 0);
-     ledcWrite(MOTOR_LEFT_CHANAL, 0);
+        //Setup von PWM Chanals 
+        ledcSetup(MOTOR_RIGHT_CHANAL, 16000,10);
+        ledcSetup(MOTOR_LEFT_CHANAL, 16000,10);
+        ledcAttachPin(speedRight_Pin, MOTOR_RIGHT_CHANAL);
+        ledcAttachPin(speedLeft_Pin,MOTOR_LEFT_CHANAL);
+           //PWM Chanals == 0
+        ledcWrite(MOTOR_RIGHT_CHANAL, 0);
+        ledcWrite(MOTOR_LEFT_CHANAL, 0);
+
+
     }
 
-    maxLiniarSpeed = calculateMaxVelocity();
-    maxOmegaSpeed = calculateMaxOmega();
+        liniar_PID.setParameters(0.1,0,0);
+        angular_PID.setParameters(1,0.01,0.01);
+
+        maxLiniarSpeed = calculateMaxVelocity();
+        maxOmegaSpeed = calculateMaxOmega();
+
 }
 
 
 Motor::Motor(int motor_speedRight_Pin, int motor_speedLeft_Pin,
              int motordirectionRight_Pin, int motordirectionLeft_Pin)
 {
-    if(!isSetUp){
-    isSetUp = 1;
-    speedRight_Pin = motor_speedRight_Pin;
-    speedLeft_Pin = motor_speedLeft_Pin;
-    directionRight_Pin = motordirectionRight_Pin;
-    directionLeft_Pin = motordirectionLeft_Pin;
+    if (!isSetUp)
+    {
+        isSetUp = 1;
+        speedRight_Pin = motor_speedRight_Pin;
+        speedLeft_Pin = motor_speedLeft_Pin;
+        directionRight_Pin = motordirectionRight_Pin;
+        directionLeft_Pin = motordirectionLeft_Pin;
 
-     pinMode(directionRight_Pin, OUTPUT);
-     pinMode(directionLeft_Pin, OUTPUT);
+        pinMode(directionRight_Pin, OUTPUT);
+        pinMode(directionLeft_Pin, OUTPUT);
 
-     //Richtung der Motoren Bestimmen
-     digitalWrite(directionRight_Pin, MOTOR_RIGHT_CHANAL);
-     digitalWrite(directionLeft_Pin, MOTOR_LEFT_CHANAL);
+        // Richtung der Motoren Bestimmen
+        digitalWrite(directionRight_Pin, MOTOR_RIGHT_CHANAL);
+        digitalWrite(directionLeft_Pin, MOTOR_LEFT_CHANAL);
 
-    //Setup von PWM Chanals 
-     ledcSetup(MOTOR_RIGHT_CHANAL, 16000,10);
-     ledcSetup(MOTOR_LEFT_CHANAL, 16000,10);
-     ledcAttachPin(speedRight_Pin, MOTOR_RIGHT_CHANAL);
-     ledcAttachPin(speedLeft_Pin,MOTOR_LEFT_CHANAL);
-        //PWM Chanals == 0
-     ledcWrite(MOTOR_RIGHT_CHANAL, 0);
-     ledcWrite(MOTOR_LEFT_CHANAL, 0);
+        // Setup von PWM Chanals
+        ledcSetup(MOTOR_RIGHT_CHANAL, 16000, 10);
+        ledcSetup(MOTOR_LEFT_CHANAL, 16000, 10);
+        ledcAttachPin(speedRight_Pin, MOTOR_RIGHT_CHANAL);
+        ledcAttachPin(speedLeft_Pin, MOTOR_LEFT_CHANAL);
+        // PWM Chanals == 0
+        ledcWrite(MOTOR_RIGHT_CHANAL, 0);
+        ledcWrite(MOTOR_LEFT_CHANAL, 0);
+
+        maxLiniarSpeed = calculateMaxVelocity();
+        maxOmegaSpeed = calculateMaxOmega();
+
+        liniar_PID.setParameters(1, 0, 0);
+        angular_PID.setParameters(5, 0, 0);
     }
-
-    maxLiniarSpeed = calculateMaxVelocity();
-    maxOmegaSpeed = calculateMaxOmega();
 }
 
 Motor::Motor(uint32_t frequency, uint8_t resulutionBits)
 {
-    if(!isSetUp){
-    isSetUp = 1;
-     pinMode(directionRight_Pin, OUTPUT);
-     pinMode(directionLeft_Pin, OUTPUT);
+    if (!isSetUp)
+    {
+        isSetUp = 1;
+        pinMode(directionRight_Pin, OUTPUT);
+        pinMode(directionLeft_Pin, OUTPUT);
 
-     //Richtung der Motoren Bestimmen
-     digitalWrite(directionRight_Pin, MOTOR_RIGHT_CHANAL);
-     digitalWrite(directionLeft_Pin, MOTOR_LEFT_CHANAL);
+        // Richtung der Motoren Bestimmen
+        digitalWrite(directionRight_Pin, MOTOR_RIGHT_CHANAL);
+        digitalWrite(directionLeft_Pin, MOTOR_LEFT_CHANAL);
 
-    //Setup von PWM Chanals 
-     ledcSetup(MOTOR_RIGHT_CHANAL, frequency, resulutionBits);
-     ledcSetup(MOTOR_RIGHT_CHANAL, frequency, resulutionBits);
-     ledcAttachPin(speedRight_Pin, MOTOR_RIGHT_CHANAL);
-     ledcAttachPin(speedLeft_Pin,MOTOR_LEFT_CHANAL);
-        //PWM Chanals == 0
-     ledcWrite(MOTOR_RIGHT_CHANAL, 0);
-     ledcWrite(MOTOR_LEFT_CHANAL, 0);
+        // Setup von PWM Chanals
+        ledcSetup(MOTOR_RIGHT_CHANAL, frequency, resulutionBits);
+        ledcSetup(MOTOR_RIGHT_CHANAL, frequency, resulutionBits);
+        ledcAttachPin(speedRight_Pin, MOTOR_RIGHT_CHANAL);
+        ledcAttachPin(speedLeft_Pin, MOTOR_LEFT_CHANAL);
+        // PWM Chanals == 0
+        ledcWrite(MOTOR_RIGHT_CHANAL, 0);
+        ledcWrite(MOTOR_LEFT_CHANAL, 0);
+
+        maxLiniarSpeed = calculateMaxVelocity();
+        maxOmegaSpeed = calculateMaxOmega();
+
+        liniar_PID.setParameters(1, 0, 0);
+        angular_PID.setParameters(5, 0, 0);
     }
-
-    maxLiniarSpeed = calculateMaxVelocity();
-    maxOmegaSpeed = calculateMaxOmega();
 } 
 
 Motor::Motor(int motor_speedRight_Pin, int motor_speedLeft_Pin,
              int motordirectionRight_Pin, int motordirectionLeft_Pin,
              uint32_t frequency, uint8_t resulutionBits)
 {
-    if(!isSetUp){
-    isSetUp = 1;
-    speedRight_Pin = motor_speedRight_Pin;
-    speedLeft_Pin = motor_speedLeft_Pin;
-    directionRight_Pin = motordirectionRight_Pin;
-    directionLeft_Pin = motordirectionLeft_Pin;
+    if (!isSetUp)
+    {
+        isSetUp = 1;
+        speedRight_Pin = motor_speedRight_Pin;
+        speedLeft_Pin = motor_speedLeft_Pin;
+        directionRight_Pin = motordirectionRight_Pin;
+        directionLeft_Pin = motordirectionLeft_Pin;
 
-     pinMode(directionRight_Pin, OUTPUT);
-     pinMode(directionLeft_Pin, OUTPUT);
+        pinMode(directionRight_Pin, OUTPUT);
+        pinMode(directionLeft_Pin, OUTPUT);
 
-     //Richtung der Motoren Bestimmen
-     digitalWrite(directionRight_Pin, MOTOR_RIGHT_CHANAL);
-     digitalWrite(directionLeft_Pin, MOTOR_LEFT_CHANAL);
+        // Richtung der Motoren Bestimmen
+        digitalWrite(directionRight_Pin, MOTOR_RIGHT_CHANAL);
+        digitalWrite(directionLeft_Pin, MOTOR_LEFT_CHANAL);
 
-    //Setup von PWM Chanals 
-     ledcSetup(MOTOR_RIGHT_CHANAL, frequency, resulutionBits);
-     ledcSetup(MOTOR_LEFT_CHANAL,  frequency, resulutionBits);
-     ledcAttachPin(speedRight_Pin, MOTOR_RIGHT_CHANAL);
-     ledcAttachPin(speedLeft_Pin,MOTOR_LEFT_CHANAL);
-        //PWM Chanals == 0
-     ledcWrite(MOTOR_RIGHT_CHANAL, 0);
-     ledcWrite(MOTOR_LEFT_CHANAL, 0);
+        // Setup von PWM Chanals
+        ledcSetup(MOTOR_RIGHT_CHANAL, frequency, resulutionBits);
+        ledcSetup(MOTOR_LEFT_CHANAL, frequency, resulutionBits);
+        ledcAttachPin(speedRight_Pin, MOTOR_RIGHT_CHANAL);
+        ledcAttachPin(speedLeft_Pin, MOTOR_LEFT_CHANAL);
+        // PWM Chanals == 0
+        ledcWrite(MOTOR_RIGHT_CHANAL, 0);
+        ledcWrite(MOTOR_LEFT_CHANAL, 0);
+
+        maxLiniarSpeed = calculateMaxVelocity();
+        maxOmegaSpeed = calculateMaxOmega();
+
+        liniar_PID.setParameters(1, 0, 0);
+        angular_PID.setParameters(5, 0, 0);
     }
-
-    maxLiniarSpeed = calculateMaxVelocity();
-    maxOmegaSpeed = calculateMaxOmega();
 }
 
 
@@ -153,52 +172,52 @@ void Motor::setAngularPID(float Kp,float Ki,float Kd){
     angular_PID.setParameters(Kp,Ki, Kd);
 }
 
-//void Motor::headingPID(float Kp,float Ki,float Kd){
-//    heading_PID.setParameters(Kp,Ki,Kd);
-//}
-
-
 void Motor::setSpeed(const Speed& speed){
 //meachure time
 static unsigned long  tlast = 0;
 const auto tnow = millis();
 
-const float dt_seconds = (tnow - tlast)/1000.0f;
+const float dt_seconds = (float)(tnow - tlast)/1000.0f;
 
 //meashure distance / rotation change
-const auto rightTicks = getRightTicks();
-const auto leftTicks = getLeftTicks();
+const uint32_t newRightTicks = getRightTicks();
+const uint32_t newLeftTicks  =  getLeftTicks();
+static uint32_t lastRightTicks = 0;
+static uint32_t lastLeftTicks  = 0;
 
-Serial.print("right ticks: ");
-Serial.print(rightTicks);
-Serial.print("  left ticks: ");
-Serial.println(leftTicks);
-Serial.print("  dt: ");
-Serial.println(dt_seconds);
+const uint32_t deltaRightTicks = newRightTicks - lastRightTicks;
+const uint32_t deltaLeftTicks  = newLeftTicks  - lastLeftTicks;
+
+LOG("right ticks: ");
+LOG(deltaRightTicks);
+LOG("  left ticks: ");
+LOG_LN(deltaLeftTicks);
+LOG("  dt: ");
+LOG_LN(dt_seconds);
 
 
-const auto v_meashured = calculateVelocity(rightTicks, leftTicks, dt_seconds);
-const auto omega_meashured = calculateAngle(rightTicks, leftTicks, dt_seconds);
-Serial.print("v_measured: ");
-Serial.print(v_meashured);
-Serial.print("  omega mesured. ");
-Serial.println(omega_meashured);
-calculateDistanceDriven(rightTicks, leftTicks, dt_seconds);
-calculateAngleDriven(rightTicks, leftTicks, dt_seconds);
+const auto v_meashured = calculateVelocity(deltaRightTicks, deltaLeftTicks, dt_seconds);
+const auto omega_meashured = calculateAngle(deltaRightTicks, deltaLeftTicks, dt_seconds);
+LOG("v_measured: ");
+LOG(v_meashured);
+LOG("  omega mesured. ");
+LOG_LN(omega_meashured);
+calculateDistanceDriven(deltaRightTicks, deltaLeftTicks, dt_seconds);
+calculateAngleDriven(deltaRightTicks, deltaLeftTicks, dt_seconds);
 
 //calculate error
-const float liniar_error = speed.getLinearSpeed() * maxLiniarSpeed - v_meashured;
-const float angulareError= speed.getOmega() * maxOmegaSpeed - omega_meashured;
+const float liniar_error  = speed.getLinearSpeed() * maxLiniarSpeed - v_meashured;
+const float angulareError = speed.getOmega() * maxOmegaSpeed - omega_meashured;
 
-Serial.print("maxLiniarSpeed: ");
-Serial.print(maxLiniarSpeed);
-Serial.print("  maxOmegaSpeed: ");
-Serial.println(maxOmegaSpeed);
+LOG("maxLiniarSpeed: ");
+LOG(maxLiniarSpeed);
+LOG("  maxOmegaSpeed: ");
+LOG_LN(maxOmegaSpeed);
 
-Serial.print("liniar error: ");
-Serial.print(liniar_error);
-Serial.print("  angulare error: ");
-Serial.println(angulareError);
+LOG("liniar error: ");
+LOG(liniar_error);
+LOG("  angulare error: ");
+LOG_LN(angulareError);
 
 const float v_correction = liniar_PID.calculate(liniar_error);
 const float omega_correction= angular_PID.calculate(angulareError);
@@ -206,14 +225,16 @@ const float omega_correction= angular_PID.calculate(angulareError);
 const auto finalVelocityCMD = speed.getLinearSpeed() * maxLiniarSpeed + v_correction;
 const auto finalOmegaCMD = speed.getOmega() * maxOmegaSpeed + omega_correction;
 
-Serial.print("final velocity: ");
-Serial.print(finalVelocityCMD);
-Serial.print("  fianl omega: ");
-Serial.println(finalOmegaCMD);
+LOG("final velocity: ");
+LOG(finalVelocityCMD);
+LOG("  fianl omega: ");
+LOG_LN(finalOmegaCMD);
 
 setMotorSpeeds(finalVelocityCMD, finalOmegaCMD);
 
 
+lastRightTicks = newRightTicks;
+lastLeftTicks  = newLeftTicks;
 tlast = tnow;
     
 
@@ -224,35 +245,35 @@ void Motor::setMotorSpeeds(const float final_v_cmd, const float final_omega_cmd)
     const float leftMotorSpeed_mps = final_v_cmd - final_omega_cmd * wheelBase / 2.0f;
     const float rightMotorSpeed_mps = final_v_cmd + final_omega_cmd * wheelBase / 2.0f;
 
-    Serial.print("motor commnad (mps): ");
-    Serial.print(leftMotorSpeed_mps);
-    Serial.print("  ");
-    Serial.println(rightMotorSpeed_mps);
+    LOG("motor commnad (mps): ");
+    LOG(leftMotorSpeed_mps);
+    LOG("  ");
+    LOG_LN(rightMotorSpeed_mps);
 
     const float leftMotorCmd_ticks = leftMotorSpeed_mps / (2.0f * M_PI * wheelRadius) * ticksPerRevolution;
     const float rightMotorCmd_ticks = rightMotorSpeed_mps / (2.0f * M_PI * wheelRadius) * ticksPerRevolution;
 
     
-    const int leftMotorCmd = leftMotorCmd_ticks / maxTicksPerRevolution * MAX_SPEED_CMD;
-    const int rightMotorCmd = rightMotorCmd_ticks / maxTicksPerRevolution * MAX_SPEED_CMD;
+    const int leftMotorCmd =  leftMotorCmd_ticks  / maxTicksPerSecond * MAX_SPEED_CMD;
+    const int rightMotorCmd = rightMotorCmd_ticks / maxTicksPerSecond * MAX_SPEED_CMD;
 
-    Serial.print("final motor commnad: ");
-    Serial.print(leftMotorCmd);
-    Serial.print("  ");
-    Serial.println(rightMotorCmd);
+    LOG("final motor commnad: ");
+    LOG(leftMotorCmd);
+    LOG("  ");
+    LOG_LN(rightMotorCmd);
 
     const int leftMotorSpeed = clampInt(leftMotorCmd, -MAX_SPEED_CMD, MAX_SPEED_CMD);
     const int rightMotorSpeed = clampInt(rightMotorCmd, -MAX_SPEED_CMD, MAX_SPEED_CMD);
-    Serial.print("final motor commnad (clamped): ");
-    Serial.print(leftMotorSpeed);
-    Serial.print("  ");
-    Serial.println(rightMotorSpeed);
+    LOG("final motor commnad (clamped): ");
+    LOG(leftMotorSpeed);
+    LOG("  ");
+    LOG_LN(rightMotorSpeed);
 
     changeSpeed(leftMotorSpeed, MOTOR_LEFT);
     changeSpeed(rightMotorSpeed, MOTOR_RIGHT);
 }
 
-float Motor::calculateVelocity(const unsigned long rightTicks,const unsigned long leftTicks, const float dt_seconds){
+float Motor::calculateVelocity(const uint32_t rightTicks,const uint32_t leftTicks, const float dt_seconds){
 //calculate rotation
 const float rightRotations = rightTicks/(float) ticksPerRevolution;
 const float leftRotations = leftTicks/(float) ticksPerRevolution;
@@ -269,7 +290,7 @@ const float leftVelocity  = leftDistance/ dt_seconds;
 return (rightVelocity + leftVelocity)/2.0f;
 }
 
-float Motor::calculateAngle(const unsigned long rightTicks, const unsigned long leftTicks, const float dt_seconds){
+float Motor::calculateAngle(const uint32_t rightTicks, const uint32_t leftTicks, const float dt_seconds){
 //calculate rotation
 const float rightRotations = rightTicks/ticksPerRevolution;
 const float leftRotations = leftTicks/ticksPerRevolution;
@@ -286,7 +307,7 @@ return (rightVelocity - leftVelocity)/wheelBase;
 }
 
 
-void Motor::calculateAngleDriven(const unsigned long rightTicks,const unsigned long leftTicks, const float dt_seconds)
+void Motor::calculateAngleDriven(const uint32_t rightTicks,const uint32_t leftTicks, const float dt_seconds)
 {
 //calculate rotation
 const float rightRotations = rightTicks/ticksPerRevolution;
@@ -300,7 +321,7 @@ angularDriven += (rightDistance + leftDistance)/2.0f;
 
 }
 
-void Motor::calculateDistanceDriven(const unsigned long rightTicks,const unsigned long leftTicks, const float dt_seconds)
+void Motor::calculateDistanceDriven(const uint32_t rightTicks,const uint32_t leftTicks, const float dt_seconds)
 {
 //calculate rotation
 const float rightRotations = rightTicks/ticksPerRevolution;
@@ -325,15 +346,15 @@ void Motor::reset(){
 
 float Motor::calculateMaxVelocity()
 {
-    const auto maxRotations = maxTicksPerRevolution/ticksPerRevolution;
+    const auto maxRotations = (float) maxTicksPerSecond/ticksPerRevolution;
     const auto maxVelocity = 2.0f * M_PI * wheelRadius * maxRotations;
 
     return maxVelocity;
 }
 float Motor::calculateMaxOmega()
 {
-    const auto maxRotations = maxTicksPerRevolution/ticksPerRevolution;
-    const auto maxVelocityPerWheel = 2.0f * M_PI * wheelRadius * maxRotations;
+    const auto maxRotationsPerSeconds = (float) maxTicksPerSecond/ticksPerRevolution;
+    const auto maxVelocityPerWheel = 2.0f * M_PI * wheelRadius * maxRotationsPerSeconds;
 
     return 2*maxVelocityPerWheel/wheelBase;
 }
